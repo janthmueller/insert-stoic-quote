@@ -17,6 +17,9 @@ A GitHub Action to insert daily or random Stoic quotes into your markdown files 
 To specify where the quote should be inserted in your file, add the following comment flags:
 
 ```markdown
+<!--START_SECTION:current-date-->
+<!--END_SECTION:current-date-->
+
 <!--START_SECTION:quote-text-->
 <!--END_SECTION:quote-text-->
 
