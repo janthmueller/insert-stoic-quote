@@ -16,6 +16,21 @@ A GitHub Action to insert daily or random Stoic quotes into your markdown files 
 
 ## Usage
 
+To specify where the quote should be inserted in your file, add the following comment flags:
+
+```markdown
+<!--START_SECTION:quote-text-->
+<!--END_SECTION:quote-text-->
+
+<!--START_SECTION:quote-author-->
+<!--END_SECTION:quote-author-->
+
+<!--START_SECTION:quote-interpretation-->
+<!--END_SECTION:quote-interpretation-->
+```
+
+The action will replace the content between these flags with the new quote.
+
 Create or update your GitHub workflow `.github/workflows/update-quote.yml` like this:
 
 ```yaml
@@ -29,6 +44,8 @@ on:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
@@ -36,12 +53,12 @@ jobs:
       - name: Insert Stoic Quote into README
         uses: janthmueller/insert-stoic-quote@v1
         with:
-          mode: "daily"                   # 'daily' or 'random'
+          type: "daily"                   # 'daily' or 'random'
           file: "README.md"               # file to update
           author: "Marcus Aurelius"      # optional: filter by author
           method: "gpt+fallback"         # optional: interpretation method
           openai_api_key: ${{ secrets.OPENAI_API_KEY }} # optional for GPT methods
-````
+```
 
 ---
 
@@ -49,10 +66,10 @@ jobs:
 
 | Name             | Description                                                               | Default     |
 | ---------------- | ------------------------------------------------------------------------- | ----------- |
-| `mode`           | `'daily'` or `'random'` to select quote type                              | `daily`     |
+| `type`           | `'daily'` or `'random'` to select quote type                              | `daily`     |
 | `file`           | File path to insert the quote into                                        | `README.md` |
 | `author`         | (Optional) Filter quotes by author                                        | -           |
-| `method`         | (Optional) Interpretation method: `db`, `gpt`, `db+fixed`, `gpt+fallback` | `db+fixed`  |
+| `method`         | (Optional) Interpretation method: `db`, `gpt`, `db+fixed`, `gpt+fallback`.<br>Default: `db+fixed` for `daily`, `db` for `random`. | -           |
 | `openai_api_key` | (Optional) OpenAI API key, needed for GPT interpretation                  | -           |
 
 ---
@@ -72,4 +89,3 @@ This action uses the [Kathekon](https://github.com/janthmueller/kathekon) Python
 ## Contributing
 
 Contributions and suggestions are welcome! Please open an issue or pull request.
-
