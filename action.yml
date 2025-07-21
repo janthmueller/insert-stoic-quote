@@ -1,0 +1,45 @@
+name: "Insert Stoic Quote"
+description: "GitHub Action to insert daily or random Stoic quotes into your markdown files using Kathekon."
+author: "Jan Müller"
+
+inputs:
+  mode:
+    description: "'random' or 'daily' to choose the quote type"
+    required: false
+    default: "daily"
+  file:
+    description: "Path to the file to insert the quote into"
+    required: false
+    default: "README.md"
+  author:
+    description: "Filter quotes by author (optional)"
+    required: false
+  method:
+    description: "Interpretation method: db, gpt, db+fixed, gpt+fallback (optional)"
+    required: false
+  openai_api_key:
+    description: "OpenAI API key (required for GPT methods)"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install kathekon
+      run: pip install --upgrade kathekon
+
+    - name: Run kathekon readme command
+      run: |
+        CMD="kathekon readme ${{ inputs.mode }} --file '${{ inputs.file }}'"
+        [[ "${{ inputs.author }}" != "" ]] && CMD="$CMD --author '${{ inputs.author }}'"
+        [[ "${{ inputs.method }}" != "" ]] && CMD="$CMD --method '${{ inputs.method }}'"
+        echo "Running: $CMD"
+        eval $CMD
+      shell: bash
+      env:
+        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+
