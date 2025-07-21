@@ -1,45 +1,58 @@
 name: "Insert Stoic Quote"
-description: "GitHub Action to insert daily or random Stoic quotes into your markdown files using Kathekon."
+description: "Insert a Stoic quote and interpretation into a markdown file using kathekon"
 author: "Jan Müller"
 
 inputs:
-  mode:
-    description: "'random' or 'daily' to choose the quote type"
-    required: false
-    default: "daily"
   file:
-    description: "Path to the file to insert the quote into"
+    description: "The file to update (e.g. README.md)"
     required: false
     default: "README.md"
-  author:
-    description: "Filter quotes by author (optional)"
-    required: false
   method:
-    description: "Interpretation method: db, gpt, db+fixed, gpt+fallback (optional)"
+    description: "Method to use for interpretation: db, gpt, gpt+fallback, db+fixed"
     required: false
-  openai_api_key:
-    description: "OpenAI API key (required for GPT methods)"
+    default: "db+fixed"
+  author:
+    description: "Filter quotes by Stoic author (e.g. Seneca, Marcus Aurelius)"
     required: false
+    default: ""
+  type:
+    description: "Quote type: daily or random"
+    required: false
+    default: "daily"
 
 runs:
   using: "composite"
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: "3.11"
 
     - name: Install kathekon
-      run: pip install --upgrade kathekon
-
-    - name: Run kathekon readme command
       run: |
-        CMD="kathekon readme ${{ inputs.mode }} --file '${{ inputs.file }}'"
-        [[ "${{ inputs.author }}" != "" ]] && CMD="$CMD --author '${{ inputs.author }}'"
-        [[ "${{ inputs.method }}" != "" ]] && CMD="$CMD --method '${{ inputs.method }}'"
-        echo "Running: $CMD"
-        eval $CMD
+        pip install --upgrade pip
+        pip install kathekon
       shell: bash
-      env:
-        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+
+    - name: Insert quote into file
+      run: |
+        if [ "${{ inputs.type }}" = "random" ]; then
+          kathekon readme random --file "${{ inputs.file }}" --author "${{ inputs.author }}" --method "${{ inputs.method }}"
+        else
+          kathekon readme daily --file "${{ inputs.file }}" --author "${{ inputs.author }}" --method "${{ inputs.method }}"
+        fi
+      shell: bash
+
+    - name: Configure Git
+      run: |
+        git config user.name "${GITHUB_ACTOR}"
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      shell: bash
+
+    - name: Commit and Push changes
+      run: |
+        git add "${{ inputs.file }}"
+        git commit -m "Insert Stoic quote via GitHub Action" || echo "Nothing to commit"
+        git push
+      shell: bash
 
