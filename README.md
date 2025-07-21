@@ -49,7 +49,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Insert Stoic Quote into README
-        uses: janthmueller/insert-stoic-quote@v1
+        uses: janthmueller/insert-stoic-quote@v0.0.8
         with:
           type: "random"                   # 'daily' or 'random'
           file: "README.md"               # file to update
