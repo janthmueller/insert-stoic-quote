@@ -1,32 +1,36 @@
-name: "Insert Stoic Quote"
-description: "Insert a Stoic quote and interpretation into a markdown file using kathekon"
-author: "Jan Müller"
+name: 'Insert Stoic Quote'
+description: 'Insert a Stoic quote into a markdown file using kathekon.'
+author: 'janthmueller'
+branding:
+  icon: 'book'
+  color: 'blue'
 
 inputs:
   file:
-    description: "The file to update (e.g. README.md)"
+    description: 'File to insert the quote into'
     required: false
-    default: "README.md"
-  method:
-    description: "Method to use for interpretation: db, gpt, gpt+fallback, db+fixed"
-    required: false
-    default: "db+fixed"
-  author:
-    description: "Filter quotes by Stoic author (e.g. Seneca, Marcus Aurelius)"
-    required: false
-    default: ""
+    default: 'README.md'
+
   type:
-    description: "Quote type: daily or random"
+    description: 'Type of quote: daily or random'
     required: false
-    default: "daily"
+    default: 'daily'
+
+  method:
+    description: 'Interpretation method: db, gpt, db+fixed, gpt+fallback'
+    required: false
+
+  author:
+    description: 'Optional author filter (e.g., Marcus Aurelius)'
+    required: false
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: '3.11'
 
     - name: Install kathekon
       run: |
@@ -34,25 +38,33 @@ runs:
         pip install kathekon
       shell: bash
 
-    - name: Insert quote into file
+    - name: Insert Stoic Quote
       run: |
-        if [ "${{ inputs.type }}" = "random" ]; then
-          kathekon readme random --file "${{ inputs.file }}" --author "${{ inputs.author }}" --method "${{ inputs.method }}"
+        method="${{ inputs.method }}"
+        type="${{ inputs.type }}"
+        file="${{ inputs.file }}"
+        author="${{ inputs.author }}"
+
+        if [ "$type" = "daily" ]; then
+          method="${method:-db+fixed}"
+          cmd="kathekon readme daily --file \"$file\" --method \"$method\""
         else
-          kathekon readme daily --file "${{ inputs.file }}" --author "${{ inputs.author }}" --method "${{ inputs.method }}"
+          method="${method:-db}"
+          cmd="kathekon readme random --file \"$file\" --method \"$method\""
+          if [ -n "$author" ]; then
+            cmd="$cmd --author \"$author\""
+          fi
         fi
+
+        eval "$cmd"
       shell: bash
 
-    - name: Configure Git
+    - name: Commit and push changes
       run: |
-        git config user.name "${GITHUB_ACTOR}"
-        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-      shell: bash
-
-    - name: Commit and Push changes
-      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
         git add "${{ inputs.file }}"
-        git commit -m "Insert Stoic quote via GitHub Action" || echo "Nothing to commit"
+        git commit -m "Insert Stoic quote ($(date +'%Y-%m-%d'))" || echo "Nothing to commit"
         git push
       shell: bash
 
