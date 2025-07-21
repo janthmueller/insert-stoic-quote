@@ -1,7 +1,5 @@
 # Insert Stoic Quote GitHub Action
 
-[![GitHub Actions](https://github.com/janthmueller/insert-stoic-quote/actions/workflows/test.yml/badge.svg)](https://github.com/janthmueller/insert-stoic-quote/actions)
-
 A GitHub Action to insert daily or random Stoic quotes into your markdown files using the [Kathekon](https://github.com/janthmueller/kathekon) Python CLI.
 
 ---
@@ -53,24 +51,17 @@ jobs:
       - name: Insert Stoic Quote into README
         uses: janthmueller/insert-stoic-quote@v1
         with:
-          type: "daily"                   # 'daily' or 'random'
+          type: "random"                   # 'daily' or 'random'
           file: "README.md"               # file to update
           author: "Marcus Aurelius"      # optional: filter by author
           method: "gpt+fallback"         # optional: interpretation method
           openai_api_key: ${{ secrets.OPENAI_API_KEY }} # optional for GPT methods
 ```
-
 ---
 
-## Inputs
+## About Kathekon
 
-| Name             | Description                                                               | Default     |
-| ---------------- | ------------------------------------------------------------------------- | ----------- |
-| `type`           | `'daily'` or `'random'` to select quote type                              | `daily`     |
-| `file`           | File path to insert the quote into                                        | `README.md` |
-| `author`         | (Optional) Filter quotes by author                                        | -           |
-| `method`         | (Optional) Interpretation method: `db`, `gpt`, `db+fixed`, `gpt+fallback`.<br>Default: `db+fixed` for `daily`, `db` for `random`. | -           |
-| `openai_api_key` | (Optional) OpenAI API key, needed for GPT interpretation                  | -           |
+This action uses the [Kathekon](https://github.com/janthmueller/kathekon) Python package to fetch and insert Stoic quotes. 
 
 ---
 
@@ -78,11 +69,7 @@ jobs:
 
 MIT License © Jan Müller
 
----
 
-## About Kathekon
-
-This action uses the [Kathekon](https://github.com/janthmueller/kathekon) Python package to fetch and insert Stoic quotes.
 
 ---
 
